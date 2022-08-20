@@ -31,3 +31,9 @@ variable "database_password" {
   type        = string
   default     = ""
 }
+
+variable "backup_retention_period" {
+  description = "The number of days to keep backups for"
+  type        = number
+  default     = 1
+}

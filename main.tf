@@ -2,7 +2,7 @@
 data "aws_vpc" "selected" {
   filter {
     name   = "tag:Environment"
-    values = ["${var.environment}"]
+    values = [var.environment]
   }
 }
 
@@ -50,14 +50,15 @@ module "rds" {
   instance_class    = var.instance
   allocated_storage = var.storage
 
-  db_name                = var.name
-  username               = var.database_username
-  password               = var.database_password
-  port                   = "3306"
-  backup_window          = "03:00-06:00"
-  maintenance_window     = "Mon:00:00-Mon:03:00"
-  skip_final_snapshot    = true
-  vpc_security_group_ids = data.aws_security_groups.selected.ids
+  db_name                 = var.name
+  username                = var.database_username
+  password                = var.database_password
+  port                    = "3306"
+  backup_window           = "03:00-06:00"
+  backup_retention_period = var.backup_retention_period
+  maintenance_window      = "Mon:00:00-Mon:03:00"
+  skip_final_snapshot     = true
+  vpc_security_group_ids  = data.aws_security_groups.selected.ids
 
   tags = {
     Environment = var.environment
