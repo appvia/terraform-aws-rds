@@ -2,7 +2,7 @@
 data "aws_vpc" "selected" {
   filter {
     name   = "tag:Environment"
-    values = ["${var.environment}"]
+    values = [var.environment]
   }
 }
 

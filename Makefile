@@ -37,6 +37,10 @@ format:
 	@echo "--> Formatting terraform module"
 	@terraform fmt
 
+verify-lint:
+	@echo "--> Verifying terraform lint"
+	@act -j code-linting
+
 verify-security:
 	@echo "--> Verifying against security policies"
 	@act -j code-security
