@@ -17,11 +17,6 @@ data "aws_subnets" "selected" {
   }
 
   filter {
-    name   = "tag:Name"
-    values = [var.environment]
-  }
-
-  filter {
     name   = "tag:Network"
     values = ["Private"]
   }

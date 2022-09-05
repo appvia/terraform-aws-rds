@@ -29,7 +29,7 @@ variable "database_engine" {
 variable "database_engine_version" {
   description = "The version of the database engine you want to use"
   type        = string
-  default     = "5.7.25"
+  default     = "5.7.33"
 }
 
 variable "database_family" {
@@ -115,11 +115,11 @@ variable "backup_retention_period" {
 variable "database_backup_window" {
   description = "The time window you want to perform maintenance in"
   type        = string
-  default     = "03:00-06:00"
+  default     = "01:00-03:00"
 }
 
 variable "database_maintenance_window" {
   description = "The time window you want to perform maintenance in"
   type        = string
-  default     = "Mon:03:00-Mon:06:00"
+  default     = "Mon:04:00-Mon:06:00"
 }
