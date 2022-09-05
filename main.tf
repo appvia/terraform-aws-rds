@@ -1,7 +1,7 @@
 data "aws_vpc" "selected" {
   filter {
     name   = "tag:Name"
-    values = [var.name]
+    values = [var.environment]
   }
 
   filter {
@@ -18,7 +18,7 @@ data "aws_subnets" "selected" {
 
   filter {
     name   = "tag:Name"
-    values = [var.name]
+    values = [var.environment]
   }
 
   filter {
@@ -40,7 +40,7 @@ data "aws_security_groups" "selected" {
 
   filter {
     name   = "tag:aws:eks:cluster-name"
-    values = [var.name]
+    values = [var.environment]
   }
 }
 
