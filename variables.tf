@@ -21,7 +21,7 @@ variable "storage" {
 }
 
 variable "database_engine" {
-  description = "The database engine you want to use, i.e MySQL, Postgres, etc"
+  description = "The database engine you want to use i.e mysql, postgres, etc"
   type        = string
   default     = "mysql"
 }
@@ -38,25 +38,28 @@ variable "database_family" {
   default     = "mysql5.7"
 }
 
-variable "database_backup_window" {
-  description = "The time window you want to perform maintenance in"
-  type        = string
-  default     = "03:00-06:00"
-}
-
 variable "database_major_engine_version" {
   description = "The major version of the database engine you want to use"
   type        = string
   default     = "5.7"
 }
 
+variable "database_port" {
+  description = "The port the database should listen on"
+  type        = number
+  default     = 3306
+}
+
 variable "database_options" {
   description = "The time window you want to perform maintenance in"
   type = list(object({
-    name  = string
-    value = string
+    option_name = string
+    option_settings = list(object({
+      name  = string
+      value = string
+    }))
   }))
-  dafault = [
+  default = [
     {
       option_name = "MARIADB_AUDIT_PLUGIN"
       option_settings = [
@@ -91,6 +94,12 @@ variable "database_parameters" {
   ]
 }
 
+variable "database_username" {
+  description = "The username you want to use for the database"
+  type        = string
+  default     = "root"
+}
+
 variable "database_password" {
   description = "The database password to use for this database"
   type        = string
@@ -101,4 +110,16 @@ variable "backup_retention_period" {
   description = "The number of days to keep backups for"
   type        = number
   default     = 1
+}
+
+variable "database_backup_window" {
+  description = "The time window you want to perform maintenance in"
+  type        = string
+  default     = "03:00-06:00"
+}
+
+variable "database_maintenance_window" {
+  description = "The time window you want to perform maintenance in"
+  type        = string
+  default     = "Mon:03:00-Mon:06:00"
 }
