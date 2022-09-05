@@ -1,100 +1,68 @@
-
 data "aws_vpc" "selected" {
   filter {
-    name   = "tag:Environment"
+    name   = "tag:Name"
     values = [var.environment]
+  }
+
+  filter {
+    name   = "tag:appvia.io/managed"
+    values = ["true"]
   }
 }
 
 data "aws_subnets" "selected" {
   filter {
-    name   = "tag:Database"
-    values = ["true"]
-  }
-
-  filter {
-    name   = "tag:Environment"
-    values = [var.environment]
-  }
-
-  filter {
     name   = "vpc-id"
     values = [data.aws_vpc.selected.id]
+  }
+
+  filter {
+    name   = "tag:Network"
+    values = ["Private"]
+  }
+
+  filter {
+    name   = "tag:appvia.io/managed"
+    values = ["true"]
   }
 }
 
 data "aws_security_groups" "selected" {
   filter {
-    name   = "tag:Environment"
-    values = [var.environment]
-  }
-
-  filter {
-    name   = "tag:Name"
-    values = [format("terranetes-%s-db-sg", var.environment)]
-  }
-
-  filter {
     name   = "vpc-id"
     values = [data.aws_vpc.selected.id]
+  }
+
+  filter {
+    name   = "tag:aws:eks:cluster-name"
+    values = [var.environment]
   }
 }
 
 module "rds" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "4.4.0"
+  version = "5.0.3"
 
-  identifier        = var.name
-  engine            = "mysql"
-  engine_version    = "5.7.25"
-  instance_class    = var.instance
-  allocated_storage = var.storage
-
-  db_name                 = var.name
-  username                = var.database_username
-  password                = var.database_password
-  port                    = "3306"
-  backup_window           = "03:00-06:00"
+  allocated_storage       = var.storage
   backup_retention_period = var.backup_retention_period
-  maintenance_window      = "Mon:00:00-Mon:03:00"
+  backup_window           = var.database_backup_window
+  create_db_subnet_group  = true
+  db_name                 = var.name
+  db_subnet_group_name    = format("%s-db-group", var.name)
+  deletion_protection     = false
+  engine                  = var.database_engine
+  engine_version          = var.database_engine_version
+  family                  = var.database_family
+  identifier              = var.name
+  instance_class          = var.instance
+  maintenance_window      = var.database_maintenance_window
+  major_engine_version    = var.database_major_engine_version
+  options                 = var.database_options
+  parameters              = var.database_parameters
+  password                = var.database_password
+  port                    = var.database_port
   skip_final_snapshot     = true
+  subnet_ids              = data.aws_subnets.selected.ids
+  username                = var.database_username
   vpc_security_group_ids  = data.aws_security_groups.selected.ids
-
-  tags = {
-    Environment = var.environment
-  }
-
-  create_db_subnet_group = false
-  db_subnet_group_name   = format("terranetes-%s-db", var.environment)
-  deletion_protection    = false
-  family                 = "mysql5.7"
-  major_engine_version   = "5.7"
-  subnet_ids             = data.aws_subnets.selected.ids
-
-  parameters = [
-    {
-      name  = "character_set_client"
-      value = "utf8mb4"
-    },
-    {
-      name  = "character_set_server"
-      value = "utf8mb4"
-    }
-  ]
-
-  options = [
-    {
-      option_name = "MARIADB_AUDIT_PLUGIN"
-      option_settings = [
-        {
-          name  = "SERVER_AUDIT_FILE_ROTATIONS"
-          value = "37"
-        },
-        {
-          name  = "SERVER_AUDIT_EVENTS"
-          value = "CONNECT"
-        },
-      ]
-    },
-  ]
 }
