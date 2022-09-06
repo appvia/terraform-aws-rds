@@ -37,13 +37,9 @@ format:
 	@echo "--> Formatting terraform module"
 	@terraform fmt
 
-verify-lint:
-	@echo "--> Verifying terraform lint"
-	@act -j code-linting
-
 verify-security:
 	@echo "--> Verifying against security policies"
-	@act -j code-security
+	@act -s GITHUB_TOKEN=${GITHUB_TOKEN} -j code-security
 
 verify-docs:
 	@echo "--> Generating documentation"
@@ -68,9 +64,9 @@ controller-kind:
 	@kubectl version --client >/dev/null 2>&1 || (echo "ERROR: kubectl is required."; exit 1)
 	@kind create cluster || true
 	@echo "--> Adding Terranetes Helm Repository"
-	@helm repo add appvia https://terraform-controller.appvia.io
-	@echo "--> Deploying Terraform Controller"
-	@helm upgrade -n terraform-system terraform-controller appvia/terraform-controller --create-namespace --install
+	@helm repo add appvia https://terranetes-controller.appvia.io
+	@echo "--> Deploying Terranetes Controller"
+	@helm upgrade -n terraform-system terranetes-controller appvia/terranetes-controller --install --create-namespace
 	@echo "--> Terranetes Controller is available, please configure credentials"
-	@echo "--> Documentation: https://terranetes.appvia.io/terraform-controller/category/administration/"
+	@echo "--> Documentation: https://terranetes.appvia.io/terranetes-controller/category/administration/"
 	@kubectl -n terraform-system get deployment

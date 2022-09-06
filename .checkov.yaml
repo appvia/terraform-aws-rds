@@ -1,4 +1,0 @@
-skip-check:
-  - CKV_AWS_157
-  - CKV_AWS_129
-  - CKV_AWS_118
