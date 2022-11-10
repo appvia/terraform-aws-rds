@@ -39,6 +39,15 @@ data "aws_security_groups" "selected" {
   }
 }
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
 module "rds" {
   source  = "terraform-aws-modules/rds/aws"
   version = "5.0.3"
