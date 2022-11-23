@@ -46,7 +46,7 @@ module "rds" {
 
   identifier        = var.name
   engine            = "mysql"
-  engine_version    = "5.7.25"
+  engine_version    = "5.7.40"
   instance_class    = var.instance
   allocated_storage = var.storage
 
