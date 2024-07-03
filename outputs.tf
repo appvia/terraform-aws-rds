@@ -26,6 +26,6 @@ output "database_user" {
 
 output "database_password" {
   description = "The password to use to connect to the database"
-  value       = module.rds.db_instance_password
+  value       = random_password.password.result
   sensitive   = true
 }

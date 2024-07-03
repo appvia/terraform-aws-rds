@@ -1,79 +1,51 @@
-data "aws_vpc" "selected" {
-  filter {
-    name   = "tag:Name"
-    values = [var.environment]
-  }
-
-  filter {
-    name   = "tag:appvia.io/managed"
-    values = ["true"]
-  }
-}
-
-data "aws_subnets" "selected" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.selected.id]
-  }
-
-  filter {
-    name   = "tag:Network"
-    values = ["Private"]
-  }
-
-  filter {
-    name   = "tag:appvia.io/managed"
-    values = ["true"]
-  }
-}
-
-data "aws_security_groups" "selected" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.selected.id]
-  }
-
-  filter {
-    name   = "tag:aws:eks:cluster-name"
-    values = [var.environment]
-  }
-}
-
-terraform {
-  required_version = ">= 1.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-}
-
 module "rds" {
+  #checkov:skip=CKV_TF_1:Expects module sources to use commit hash
   source  = "terraform-aws-modules/rds/aws"
-  version = "5.0.3"
+  version = "6.7.0"
 
-  allocated_storage       = var.storage
+  allocated_storage       = var.allocated_storage
   backup_retention_period = var.backup_retention_period
-  backup_window           = var.database_backup_window
+  backup_window           = var.backup_window
   create_db_subnet_group  = true
-  db_name                 = var.name
-  db_subnet_group_name    = format("%s-db-group", var.name)
+  db_name                 = var.db_name
+  db_subnet_group_name    = format("%s-db-group", var.db_name)
   deletion_protection     = false
-  engine                  = var.database_engine
-  engine_version          = var.database_engine_version
-  family                  = var.database_family
-  identifier              = var.name
-  instance_class          = var.instance
-  maintenance_window      = var.database_maintenance_window
-  major_engine_version    = var.database_major_engine_version
-  options                 = var.database_options
-  parameters              = var.database_parameters
-  password                = var.database_password
-  port                    = var.database_port
+  engine                  = var.engine
+  engine_version          = var.engine_version
+  family                  = var.family
+  identifier              = var.db_name
+  instance_class          = var.instance_class
+  maintenance_window      = var.maintenance_window
+  major_engine_version    = var.major_engine_version
+  parameters              = var.parameters
+  password                = random_password.password.result
+  port                    = var.port
   skip_final_snapshot     = true
-  subnet_ids              = data.aws_subnets.selected.ids
-  username                = var.database_username
-  vpc_security_group_ids  = data.aws_security_groups.selected.ids
+  subnet_ids              = var.subnet_ids
+  username                = var.username
+  vpc_security_group_ids  = [aws_security_group.rds_sg.id]
+}
+
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "aws_security_group" "rds_sg" {
+  #checkov:skip=CKV2_AWS_5:Falsely triggered, associated with RDS
+  name        = var.db_name
+  description = "Allow inbound traffic to RDS instance: ${var.db_name}"
+  vpc_id      = var.vpc_id
+  tags        = var.tags
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_allow_ingress" {
+  for_each          = var.allowed_cidr_blocks
+  security_group_id = aws_security_group.rds_sg.id
+  cidr_ipv4         = each.value
+  description       = "Allow inbound traffic from ${each.key} to RDS instance: ${var.db_name}"
+  from_port         = var.port
+  ip_protocol       = "tcp"
+  to_port           = var.port
 }
