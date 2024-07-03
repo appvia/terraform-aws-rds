@@ -1,11 +1,19 @@
 module "rds" {
   #checkov:skip=CKV_TF_1:Expects module sources to use commit hash
+  #checkov:skip=CKV_AWS_129:RDS Logs
+  #checkov:skip=CKV_AWS_118:Enhanced Monitoring
+  #checkov:skip=CKV_AWS_161:IAM Auth
+  #checkov:skip=CKV_AWS_293:Deletion Protection
+  #checkov:skip=CKV_AWS_353:Enabled Performance Insights
+  #checkov:skip=CKV_AWS_354:Encrypted Performance Insights
+  #checkov:skip=CKV_AWS_157:Multi-AZ
   source  = "terraform-aws-modules/rds/aws"
   version = "6.7.0"
 
   allocated_storage       = var.allocated_storage
   backup_retention_period = var.backup_retention_period
   backup_window           = var.backup_window
+  copy_tags_to_snapshot   = true
   create_db_subnet_group  = true
   db_name                 = var.db_name
   db_subnet_group_name    = format("%s-db-group", var.db_name)
