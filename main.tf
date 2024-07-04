@@ -23,6 +23,7 @@ module "rds" {
   family                  = var.family
   identifier              = var.db_name
   instance_class          = var.instance_class
+  kms_key_id              = aws_kms_key.kms.arn
   maintenance_window      = var.maintenance_window
   major_engine_version    = var.major_engine_version
   parameters              = var.parameters
@@ -56,4 +57,66 @@ resource "aws_vpc_security_group_ingress_rule" "rds_allow_ingress" {
   from_port         = var.port
   ip_protocol       = "tcp"
   to_port           = var.port
+}
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_kms_key" "kms" {
+  description             = "A symmetric encryption KMS key for RDS: ${var.db_name}"
+  enable_key_rotation     = true
+  deletion_window_in_days = 7
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "key-default-1"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow administration of the key"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action = [
+          "kms:ReplicateKey",
+          "kms:Create*",
+          "kms:Describe*",
+          "kms:Enable*",
+          "kms:List*",
+          "kms:Put*",
+          "kms:Update*",
+          "kms:Revoke*",
+          "kms:Disable*",
+          "kms:Get*",
+          "kms:Delete*",
+          "kms:ScheduleKeyDeletion",
+          "kms:CancelKeyDeletion"
+        ],
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow use of the key"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action = [
+          "kms:DescribeKey",
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey",
+          "kms:GenerateDataKeyWithoutPlaintext"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
 }
