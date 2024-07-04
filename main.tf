@@ -24,6 +24,7 @@ module "rds" {
   identifier              = var.db_name
   instance_class          = var.instance_class
   kms_key_id              = aws_kms_key.kms.arn
+  license_model           = var.license_model
   maintenance_window      = var.maintenance_window
   major_engine_version    = var.major_engine_version
   parameters              = var.parameters

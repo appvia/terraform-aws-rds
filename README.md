@@ -43,6 +43,7 @@
 | <a name="input_engine_version"></a> [engine\_version](#input\_engine\_version) | The version of the database engine you want to use | `string` | `"8.0"` | no |
 | <a name="input_family"></a> [family](#input\_family) | The family of the database engine you want to use | `string` | `"mysql8.0"` | no |
 | <a name="input_instance_class"></a> [instance\_class](#input\_instance\_class) | The instance type of the RDS instance | `string` | `"db.t3.micro"` | no |
+| <a name="input_license_model"></a> [license\_model](#input\_license\_model) | The license model you want to use for the database | `string` | `"license-included"` | no |
 | <a name="input_maintenance_window"></a> [maintenance\_window](#input\_maintenance\_window) | The time window you want to perform maintenance in | `string` | `"Mon:04:00-Mon:06:00"` | no |
 | <a name="input_major_engine_version"></a> [major\_engine\_version](#input\_major\_engine\_version) | The major version of the database engine you want to use | `string` | `"8.0"` | no |
 | <a name="input_parameters"></a> [parameters](#input\_parameters) | The options you want to use for the database | <pre>list(object({<br>    name  = string<br>    value = string<br>  }))</pre> | <pre>[<br>  {<br>    "name": "character_set_client",<br>    "value": "utf8mb4"<br>  },<br>  {<br>    "name": "character_set_server",<br>    "value": "utf8mb4"<br>  }<br>]</pre> | no |

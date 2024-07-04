@@ -51,6 +51,12 @@ variable "instance_class" {
   default     = "db.t3.micro"
 }
 
+variable "license_model" {
+  description = "The license model you want to use for the database"
+  type        = string
+  default     = "license-included"
+}
+
 variable "maintenance_window" {
   description = "The time window you want to perform maintenance in"
   type        = string
