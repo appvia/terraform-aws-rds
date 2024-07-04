@@ -30,6 +30,7 @@ module "rds" {
   password                = random_password.password.result
   port                    = var.port
   skip_final_snapshot     = true
+  storage_encrypted       = var.storage_encrypted
   subnet_ids              = var.subnet_ids
   username                = var.username
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]

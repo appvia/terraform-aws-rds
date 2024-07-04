@@ -87,6 +87,12 @@ variable "port" {
   default     = 3306
 }
 
+variable "storage_encrypted" {
+  description = "Whether the database should be encrypted"
+  type        = bool
+  default     = true
+}
+
 variable "subnet_ids" {
   description = "The Subnet IDs you want to use for the RDS instance"
   type        = list(string)

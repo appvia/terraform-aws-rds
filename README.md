@@ -47,6 +47,7 @@
 | <a name="input_major_engine_version"></a> [major\_engine\_version](#input\_major\_engine\_version) | The major version of the database engine you want to use | `string` | `"8.0"` | no |
 | <a name="input_parameters"></a> [parameters](#input\_parameters) | The options you want to use for the database | <pre>list(object({<br>    name  = string<br>    value = string<br>  }))</pre> | <pre>[<br>  {<br>    "name": "character_set_client",<br>    "value": "utf8mb4"<br>  },<br>  {<br>    "name": "character_set_server",<br>    "value": "utf8mb4"<br>  }<br>]</pre> | no |
 | <a name="input_port"></a> [port](#input\_port) | The port the database should listen on | `number` | `3306` | no |
+| <a name="input_storage_encrypted"></a> [storage\_encrypted](#input\_storage\_encrypted) | Whether the database should be encrypted | `bool` | `true` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | The Subnet IDs you want to use for the RDS instance | `list(string)` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | The tags you want to apply to the RDS instance | `map(string)` | n/a | yes |
 | <a name="input_username"></a> [username](#input\_username) | The username you want to use for the database | `string` | `"root"` | no |
