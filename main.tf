@@ -1,79 +1,124 @@
-data "aws_vpc" "selected" {
-  filter {
-    name   = "tag:Name"
-    values = [var.environment]
-  }
-
-  filter {
-    name   = "tag:appvia.io/managed"
-    values = ["true"]
-  }
-}
-
-data "aws_subnets" "selected" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.selected.id]
-  }
-
-  filter {
-    name   = "tag:Network"
-    values = ["Private"]
-  }
-
-  filter {
-    name   = "tag:appvia.io/managed"
-    values = ["true"]
-  }
-}
-
-data "aws_security_groups" "selected" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.selected.id]
-  }
-
-  filter {
-    name   = "tag:aws:eks:cluster-name"
-    values = [var.environment]
-  }
-}
-
-terraform {
-  required_version = ">= 1.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-}
-
 module "rds" {
+  #checkov:skip=CKV_TF_1:Expects module sources to use commit hash
+  #checkov:skip=CKV_AWS_129:RDS Logs
+  #checkov:skip=CKV_AWS_118:Enhanced Monitoring
+  #checkov:skip=CKV_AWS_161:IAM Auth
+  #checkov:skip=CKV_AWS_293:Deletion Protection
+  #checkov:skip=CKV_AWS_353:Enabled Performance Insights
+  #checkov:skip=CKV_AWS_354:Encrypted Performance Insights
+  #checkov:skip=CKV_AWS_157:Multi-AZ
   source  = "terraform-aws-modules/rds/aws"
-  version = "5.0.3"
+  version = "6.7.0"
 
-  allocated_storage       = var.storage
+  allocated_storage       = var.allocated_storage
   backup_retention_period = var.backup_retention_period
-  backup_window           = var.database_backup_window
+  backup_window           = var.backup_window
+  copy_tags_to_snapshot   = true
   create_db_subnet_group  = true
-  db_name                 = var.name
-  db_subnet_group_name    = format("%s-db-group", var.name)
+  db_name                 = var.db_name
+  db_subnet_group_name    = format("%s-db-group", var.db_name)
   deletion_protection     = false
-  engine                  = var.database_engine
-  engine_version          = var.database_engine_version
-  family                  = var.database_family
-  identifier              = var.name
-  instance_class          = var.instance
-  maintenance_window      = var.database_maintenance_window
-  major_engine_version    = var.database_major_engine_version
-  options                 = var.database_options
-  parameters              = var.database_parameters
-  password                = var.database_password
-  port                    = var.database_port
+  engine                  = var.engine
+  engine_version          = var.engine_version
+  family                  = var.family
+  identifier              = var.db_name
+  instance_class          = var.instance_class
+  kms_key_id              = aws_kms_key.kms.arn
+  license_model           = var.license_model
+  maintenance_window      = var.maintenance_window
+  major_engine_version    = var.major_engine_version
+  parameters              = var.parameters
+  password                = random_password.password.result
+  port                    = var.port
   skip_final_snapshot     = true
-  subnet_ids              = data.aws_subnets.selected.ids
-  username                = var.database_username
-  vpc_security_group_ids  = data.aws_security_groups.selected.ids
+  storage_encrypted       = var.storage_encrypted
+  subnet_ids              = var.subnet_ids
+  username                = var.username
+  vpc_security_group_ids  = [aws_security_group.rds_sg.id]
+}
+
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "aws_security_group" "rds_sg" {
+  #checkov:skip=CKV2_AWS_5:Falsely triggered, associated with RDS
+  name        = var.db_name
+  description = "Allow inbound traffic to RDS instance: ${var.db_name}"
+  vpc_id      = var.vpc_id
+  tags        = var.tags
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_allow_ingress" {
+  for_each          = var.allowed_cidr_blocks
+  security_group_id = aws_security_group.rds_sg.id
+  cidr_ipv4         = each.value
+  description       = "Allow inbound traffic from ${each.key} to RDS instance: ${var.db_name}"
+  from_port         = var.port
+  ip_protocol       = "tcp"
+  to_port           = var.port
+}
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_kms_key" "kms" {
+  description             = "A symmetric encryption KMS key for RDS: ${var.db_name}"
+  enable_key_rotation     = true
+  deletion_window_in_days = 7
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "key-default-1"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow administration of the key"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action = [
+          "kms:ReplicateKey",
+          "kms:Create*",
+          "kms:Describe*",
+          "kms:Enable*",
+          "kms:List*",
+          "kms:Put*",
+          "kms:Update*",
+          "kms:Revoke*",
+          "kms:Disable*",
+          "kms:Get*",
+          "kms:Delete*",
+          "kms:ScheduleKeyDeletion",
+          "kms:CancelKeyDeletion"
+        ],
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow use of the key"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action = [
+          "kms:DescribeKey",
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey",
+          "kms:GenerateDataKeyWithoutPlaintext"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
 }
