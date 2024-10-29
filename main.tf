@@ -40,7 +40,7 @@ module "rds" {
 resource "random_password" "password" {
   length           = 16
   special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
+  override_special = "!#$%&*()-_+[]{}<>:"
 }
 
 resource "aws_security_group" "rds_sg" {
