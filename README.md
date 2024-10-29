@@ -18,7 +18,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_rds"></a> [rds](#module\_rds) | terraform-aws-modules/rds/aws | 6.7.0 |
+| <a name="module_rds"></a> [rds](#module\_rds) | terraform-aws-modules/rds/aws | 6.10.0 |
 
 ## Resources
 
@@ -46,7 +46,7 @@
 | <a name="input_license_model"></a> [license\_model](#input\_license\_model) | The license model you want to use for the database | `string` | `"license-included"` | no |
 | <a name="input_maintenance_window"></a> [maintenance\_window](#input\_maintenance\_window) | The time window you want to perform maintenance in | `string` | `"Mon:04:00-Mon:06:00"` | no |
 | <a name="input_major_engine_version"></a> [major\_engine\_version](#input\_major\_engine\_version) | The major version of the database engine you want to use | `string` | `"8.0"` | no |
-| <a name="input_parameters"></a> [parameters](#input\_parameters) | The options you want to use for the database | <pre>list(object({<br>    name  = string<br>    value = string<br>  }))</pre> | <pre>[<br>  {<br>    "name": "character_set_client",<br>    "value": "utf8mb4"<br>  },<br>  {<br>    "name": "character_set_server",<br>    "value": "utf8mb4"<br>  }<br>]</pre> | no |
+| <a name="input_parameters"></a> [parameters](#input\_parameters) | The options you want to use for the database | <pre>list(object({<br/>    name  = string<br/>    value = string<br/>  }))</pre> | <pre>[<br/>  {<br/>    "name": "character_set_client",<br/>    "value": "utf8mb4"<br/>  },<br/>  {<br/>    "name": "character_set_server",<br/>    "value": "utf8mb4"<br/>  }<br/>]</pre> | no |
 | <a name="input_port"></a> [port](#input\_port) | The port the database should listen on | `number` | `3306` | no |
 | <a name="input_storage_encrypted"></a> [storage\_encrypted](#input\_storage\_encrypted) | Whether the database should be encrypted | `bool` | `true` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | The Subnet IDs you want to use for the RDS instance | `list(string)` | n/a | yes |

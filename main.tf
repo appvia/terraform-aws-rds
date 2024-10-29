@@ -8,38 +8,39 @@ module "rds" {
   #checkov:skip=CKV_AWS_354:Encrypted Performance Insights
   #checkov:skip=CKV_AWS_157:Multi-AZ
   source  = "terraform-aws-modules/rds/aws"
-  version = "6.7.0"
+  version = "6.10.0"
 
-  allocated_storage       = var.allocated_storage
-  backup_retention_period = var.backup_retention_period
-  backup_window           = var.backup_window
-  copy_tags_to_snapshot   = true
-  create_db_subnet_group  = true
-  db_name                 = var.db_name
-  db_subnet_group_name    = format("%s-db-group", var.db_name)
-  deletion_protection     = false
-  engine                  = var.engine
-  engine_version          = var.engine_version
-  family                  = var.family
-  identifier              = var.db_name
-  instance_class          = var.instance_class
-  kms_key_id              = aws_kms_key.kms.arn
-  license_model           = var.license_model
-  maintenance_window      = var.maintenance_window
-  major_engine_version    = var.major_engine_version
-  parameters              = var.parameters
-  password                = random_password.password.result
-  port                    = var.port
-  skip_final_snapshot     = true
-  storage_encrypted       = var.storage_encrypted
-  subnet_ids              = var.subnet_ids
-  username                = var.username
-  vpc_security_group_ids  = [aws_security_group.rds_sg.id]
+  allocated_storage           = var.allocated_storage
+  backup_retention_period     = var.backup_retention_period
+  backup_window               = var.backup_window
+  copy_tags_to_snapshot       = true
+  create_db_subnet_group      = true
+  db_name                     = var.db_name
+  db_subnet_group_name        = format("%s-db-group", var.db_name)
+  deletion_protection         = false
+  engine                      = var.engine
+  engine_version              = var.engine_version
+  family                      = var.family
+  identifier                  = var.db_name
+  instance_class              = var.instance_class
+  kms_key_id                  = aws_kms_key.kms.arn
+  license_model               = var.license_model
+  maintenance_window          = var.maintenance_window
+  major_engine_version        = var.major_engine_version
+  manage_master_user_password = false
+  parameters                  = var.parameters
+  password                    = random_password.password.result
+  port                        = var.port
+  skip_final_snapshot         = true
+  storage_encrypted           = var.storage_encrypted
+  subnet_ids                  = var.subnet_ids
+  username                    = var.username
+  vpc_security_group_ids      = [aws_security_group.rds_sg.id]
 }
 
 resource "random_password" "password" {
-  length           = 16
-  special          = false
+  length  = 16
+  special = false
 }
 
 resource "aws_security_group" "rds_sg" {
