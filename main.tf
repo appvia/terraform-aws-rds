@@ -8,7 +8,7 @@ module "rds" {
   #checkov:skip=CKV_AWS_354:Encrypted Performance Insights
   #checkov:skip=CKV_AWS_157:Multi-AZ
   source  = "terraform-aws-modules/rds/aws"
-  version = "6.10.0"
+  version = "7.2.1"
 
   allocated_storage           = var.allocated_storage
   backup_retention_period     = var.backup_retention_period
